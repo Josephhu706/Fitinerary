@@ -46,12 +46,12 @@
             <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
               
               <div class="flex flex-1 flex-col">
-                <label for="sets" class="mb-1 text-sm text-at-light-green">
+                <label for="body-part" class="mb-1 text-sm text-at-light-green">
                   Body Part
                 </label>
                 <!-- <input v-if="edit" id="sets" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" type="text"> -->
                   <select v-if="edit" @change="selectBodyPart(item)" required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" >
-                      <option :value="bodypart.query" v-for="bodypart in bodyparts" :key="bodypart.name">
+                      <option :value="bodypart" v-for="bodypart in bodyparts" :key="bodypart.name">
                           {{bodypart.name}}
                       </option>
                   </select>
@@ -98,7 +98,7 @@
                 <p v-else>{{item.weight}}</p>
               </div>
 
-              <!-- <img class="gifUrl" :src="item.exercise.gifUrl" alt=""> -->
+              <img class="gifUrl" :src="item.exercise.gifUrl" alt="">
 <!-- only in edit mode -->
               <img v-if="edit" @click="deleteExercise(item.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
               <!-- onclick add exercise -->
@@ -244,11 +244,14 @@ export default {
         //this is the strength training exercise object we will create
         //same as the creat exercise
         data.value.exercises.push({
-            id: uuidv4(),
-            exercise: "",
-            sets: "",
-            reps: "",
-            weight: "",
+          id: uuidv4(),
+          bodyPart:{},
+          exercise: {},
+          sets: "",
+          reps: "",
+          weight: "",
+          dbexercises:[],
+          gifUrl:""
         });
         return
       }

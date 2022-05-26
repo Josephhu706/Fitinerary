@@ -6,6 +6,7 @@ import AboutView from "../views/AboutView.vue"
 import RegisterView from "../views/RegisterView.vue"
 import CreateView from "../views/CreateView.vue"
 import ViewWorkout from '../views/ViewWorkout.vue'
+import CalendarView from '../views/CalendarView.vue'
 
 const routes = [{
         path: "/",
@@ -72,7 +73,18 @@ const routes = [{
             title: "View-Workout",
             auth: false
         }
-    }
+    },
+    {  
+        path: "/calendar",
+        name: "calendarView",
+        component: CalendarView,
+        meta:{
+            title: "calendarview",
+            //this is the only route we don't want to let people go on if they are not logged in
+            //this is how we route guard so people can't visit pages if they're not authenticated
+            auth: true
+        }
+    },
 ];
 
 const router = createRouter({

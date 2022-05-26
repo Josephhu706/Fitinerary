@@ -21,23 +21,47 @@
                     <input type="text" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="workoutName" required>
                 </div>
 
+
+
+                <!-- start date -->
+            <div class="flex flex-col gap-y-5">
+                <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(event,index) in events" :key="index">
+                    <div class="flex flex-col flex-1">
+                        <label for="startDate" class="mb-1 text-sm text-at-light-green">Pick a date</label>
+                        <input type="date" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.start" required>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <label for="startTime" class="mb-1 text-sm text-at-light-green">Pick a start time</label>
+                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.startTime" required>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <label for="endTime" class="mb-1 text-sm text-at-light-green">Pick a end time</label>
+                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.endTime" required>
+                    </div>
+                    <img @click="deleteEvent(event.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
+                </div>
+                <button @click="addEvent" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-at-light-green duration-200 border-solid border-2 border-transparent hover:border-at-light-green hover:bg-white hover:text-at-light-green">Add Schedule</button>
+            </div>
+                
+
+
                 <!-- workout type -->
 
-                <div class="flex flex-col">
-                    <label for="workout-type" class="mb-1 text-sm text-at-light-green">Workout Type</label>
-                    <select @change="workoutChange"  id="workout-type" class="p-2 text-gray-500 focus:outline-none" v-model="workoutType" required>
-                        <option value="select-workout">Select Workout</option>
-                        <option value="strength">Strength Training</option>
-                        <option value="cardio">Cardio</option>
-                    </select>
-                </div>
+            <div class="flex flex-col">
+                <label for="workout-type" class="mb-1 text-sm text-at-light-green">Workout Type</label>
+                <select @change="workoutChange"  id="workout-type" class="p-2 text-gray-500 focus:outline-none" v-model="workoutType" required>
+                    <option value="select-workout">Select Workout</option>
+                    <option value="strength">Strength Training</option>
+                    <option value="cardio">Cardio</option>
+                </select>
+            </div>
 
                 <!-- Strength training Inputs -->
                 <div v-if="workoutType === 'strength'" class="flex flex-col gap-y-5">
 
                     <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(item,index) in exercises" :key="index">
 
-                    <div class="flex-col flex">
+                        <div class="flex-col flex">
                             <label for="bodyPart" class="mb-1 text-sm text-at-light-green">Choose a Body Part</label>
                                 <select required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" @change="selectBodyPart(item)">
                                     <option>select body part</option>
@@ -123,6 +147,7 @@ export default {
         const workoutName = ref('')
         const workoutType = ref('select-workout')
         const exercises = ref([]);
+        const events = ref([])
         const statusMsg = ref(null)
         const errorMsg = ref(null)
         const bodyparts=ref([{name:"Back", query:"back"},{name:"BodyWeight", query:"cardio"},{name:"Chest", query:"chest"},{name:"Lower Arms", query:"lower%20arms"},{name:"Lower Legs", query:"lower%20legs"},{name:"Neck", query:"neck"},{name:"Shoulders", query:"shoulders"},{name:"Upper Arms", query:"upper%20arms"},{name:"Upper Legs", query:"upper%20legs"},{name:"Waist", query:"waist"}])
@@ -154,6 +179,32 @@ export default {
                     pace: "",
                 })
             }
+        }
+
+        const addEvent = () =>{
+
+            events.value.push({
+                id: uuidv4(),
+                start:"",
+                startTime:"",
+                endTime:"",
+            });
+            return
+        
+        }
+
+        const deleteEvent = (id) =>{
+            //check that the user has a minimum of 2 exercises in their workout
+            if (events.value.length > 1){
+                // filter exercises and keep only the exercises that don't have the id
+                events.value = events.value.filter(event => event.id !== id)
+                return;
+            }
+            //set the errorMsg above to throw an error
+            errorMsg.value = "Error: Cannot remove, need to at least have one schedule"
+            setTimeout(()=>{
+                errorMsg.value = false;
+            }, 5000)
         }
 
         //Listens for changing of workout type input
@@ -208,6 +259,7 @@ export default {
                         workoutName: workoutName.value,
                         workoutType: workoutType.value,
                         exercises: exercises.value,
+                        events: events.value,
                         user_id: user.id
                     },
                 ]);
@@ -215,6 +267,7 @@ export default {
                 //update success status message
                 statusMsg.value = "Success: Workout Created!";
                 //reset state
+                events.value=[]
                 workoutName.value = null;
                 workoutType.value = "select-workout";
                 exercises.value = []
@@ -243,6 +296,9 @@ export default {
             DBexercises,
             bodypartType,
             selectBodyPart,
+            events,
+            addEvent,
+            deleteEvent
 
         };
     }

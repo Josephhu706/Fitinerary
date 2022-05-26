@@ -10,6 +10,7 @@
                 <!-- only render this link if the user is logged in -->
                 <router-link v-if="user" class="cursor-pointer" :to="{name: 'createWorkout'}">Create</router-link>
                 <!-- only render this link if user is logged out -->
+                <router-link v-if="user" class="cursor-pointer" :to="{name: 'calendarView'}">Schedule</router-link>
                 <router-link v-if="!user" class="cursor-pointer" :to="{name: 'loginForm'}">Login</router-link>
                 <!-- only render this link if the user is logged in -->
                 <li v-if="user" @click="logout" class="cursor-pointer">Logout</li>
