@@ -1,13 +1,9 @@
 <template>
 
-  <transition name="fade">
-    <div v-if="showP">HELLO</div>
-  </transition>
-
-  <button @click="showP = !showP" >click</button>
-
   <div v-if="!user">
-    home page stuff
+    <HomePageLayout/>
+    <HomePageFeatures/>
+    <HomePageCTA/>
   </div>
   <div v-else-if="dataLoaded" class="container mt-10 px-4">
     <!-- no data -->
@@ -41,10 +37,13 @@ import {ref} from 'vue'
 import {supabase} from '../supabase/init'
 import {computed} from 'vue'
 import store from '../store/index'
+import HomePageLayout from '../components/HomePageLayout.vue'
+import HomePageFeatures from '../components/HomePageFeatures.vue'
+import HomePageCTA from '../components/HomePageCTA.vue'
 
 export default {
   name: "HomeView",
-  components: {},
+  components: {HomePageLayout, HomePageFeatures, HomePageCTA},
   setup() {
     // Create data / vars state
     const showP = ref(false)

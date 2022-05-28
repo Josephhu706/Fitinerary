@@ -29,9 +29,26 @@
             <div class="py-4">
               <div class="w-full border-t border-gray-300"></div>
             </div>
-            <div>
-              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
+            <div v-if="!edit">
+              <button @click="editMode" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
               <button @click="deleteEvent" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Event</button>
+            </div>
+            <div v-else>
+              <div class="flex flex-col gap-x-6 relative">       
+                <div class="flex flex-col flex-1">
+                    <label class="mb-1 text-sm text-gray-800">Pick a date</label>
+                    <input v-model="editEvent.start" type="date" class="p-2 text-gray-500 focus:outline-none" id="date" required>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <label for="startTime" class="mb-1 text-sm text-gray-800">Pick a start time</label>
+                    <input v-model="editEvent.startTime" type="time" class="p-2 text-gray-500 focus:outline-none" id="startTime" required>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <label for="endTime" class="mb-1 text-sm text-gray-800">Pick a end time</label>
+                    <input v-model="editEvent.endTime" type="time" class="p-2 text-gray-500 focus:outline-none" id="endTime" required>
+                </div>
+                 <button @click="rescheduleEvent" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
+              </div>    
             </div>
           </div>
       </div>
@@ -51,6 +68,7 @@ export default {
     name:'calendarView',
     components: { VueCal },
    setup() {
+     const edit = ref(false)
     // Create data / vars state
     const selectedEvent = ref({})
     const showDialog = ref(false)
@@ -61,6 +79,7 @@ export default {
     // Get data from supabase
     const events = ref([])
     const currentWorkout = ref(null)
+    const editEvent = ref(null)
 
     function onEventClick (event, e) {
       console.log(event.workoutId)
@@ -75,6 +94,7 @@ export default {
     const closeModal=()=>{
       currentWorkout.value = null
       showDialog.value = false
+      edit.value = false
     }
 
     const deleteEvent=()=>{
@@ -99,6 +119,33 @@ export default {
       catch(error){
        console.log(error)
       }
+    }
+
+    const editMode = () =>{
+      edit.value= true
+      let searchEvents = currentWorkout.value.events
+      searchEvents.forEach((event)=>{
+        if(event.id == selectedEvent.value.id){
+          editEvent.value = event
+        }
+      })
+    }
+
+    const rescheduleEvent = () =>{
+      let currentWorkoutEvents = currentWorkout.value.events
+      currentWorkoutEvents.forEach((event)=>{
+        if(event.id === editEvent.value.id){
+          event = editEvent.value
+        }
+      })
+      events.value.forEach((event)=>{
+        if(event.id === editEvent.value.id){
+          event.start = editEvent.value.start+" "+editEvent.value.startTime
+          event.end = editEvent.value.start+" "+editEvent.value.endTime
+        }
+      })
+      updateWorkout()
+      closeModal()
     }
 
 
@@ -168,12 +215,38 @@ export default {
     // // Run data function
     getData();
 
-    return {data, dataLoaded, user, events, getData, currentDate, buildEvent, currentWorkout, onEventClick, selectedEvent, showDialog, closeModal, deleteEvent};
+    return { rescheduleEvent, edit, editEvent, editMode, data, dataLoaded, user, events, getData, currentDate, buildEvent, currentWorkout, onEventClick, selectedEvent, showDialog, closeModal, deleteEvent};
   },
 }
 </script>
 
 <style>
+/* .list-enter-from{
+    opacity:0;
+    transform: scale(0.6)
+}
+.list-enter-to{
+    opacity: 1;
+    transform: scale(1)
+}
+.list-enter-active{
+    transition: all 0.4s ease;
+}
+.list-leave-from{
+    opacity:1;
+    transform: scale(1)
+}
+.list-leave-to{
+    opacity: 0;
+    transform: scale(0.6);
+}
+.list-leave-active{
+    transition: all 0.4s ease;
+    position: absolute;
+}
+.list-move{
+    transition: all 0.3s ease;
+} */
 .xIcon{
   cursor:pointer;
 }
