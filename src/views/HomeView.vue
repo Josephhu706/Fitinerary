@@ -1,4 +1,11 @@
 <template>
+
+  <transition name="fade">
+    <div v-if="showP">HELLO</div>
+  </transition>
+
+  <button @click="showP = !showP" >click</button>
+
   <div v-if="!user">
     home page stuff
   </div>
@@ -40,6 +47,7 @@ export default {
   components: {},
   setup() {
     // Create data / vars state
+    const showP = ref(false)
     const data = ref([])
     const dataLoaded = ref(null);
     const user = computed(()=>store.state.user)
@@ -69,7 +77,19 @@ export default {
     // Run data function
     getData();
 
-    return {data, dataLoaded, user};
+    return {data, dataLoaded, user, showP};
   },
 };
 </script>
+
+<style>
+.fade-enter-from{
+  opacity:0
+}
+.fade-enter-to{
+  opacity: 1;
+}
+.fade-enter-active{
+  transition: all 2s ease;
+}
+</style>

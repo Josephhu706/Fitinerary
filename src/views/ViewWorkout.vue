@@ -24,7 +24,7 @@
           </div>
           <!-- show these depending on the type of workout -->
           <img v-if="data.workoutType === 'cardio'" class="h-24 w-auto" src="@/assets/images/running-light-green.png" alt="">
-          <img v-else class="h-24 w-auto" src="@/assets/images/dumbbell-light-green.png" alt="">
+          <img v-else class="h-20 w-auto" src="@/assets/images/dumbbell-light-green.png" alt="">
           <!-- put the workout type in the span -->
           <span class="mt-6 py-1.5 px-5 text-xs text-white bg-at-light-green rounded-lg shadow-md">
             {{data.workoutType}}
@@ -37,13 +37,42 @@
               {{data.workoutName}}
             </h1>
           </div>
+        <div class="flex flex-col gap-y-4 w-full mt-5 sm:items-center">
+          <div class="flex flex-col gap-x-6  gap-y-2 relative sm:flex-row" v-for="(event, index) in data.events" :key="index">
+            <!-- edit date -->
+            <div class="flex flex-col">
+              <label for="start" class="mb-1 text-sm text-at-light-green">
+                Workout Date
+              </label>
+              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="date" type="date" v-model="event.start">
+                <p v-else>{{ moment(event.start, "YYYY-MM-DD").format('MMMM D YYYY')}}</p>
+            </div>
+            <!-- edit start time -->
+            <div class="flex flex-col">
+              <label for="start" class="mb-1 text-sm text-at-light-green">
+                Start Time 
+              </label>
+              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="startTime" type="time" v-model="event.startTime">
+                <p v-else>{{momentTime(event.startTime, "hh:mm" ).format("hh:mm a")}}</p>
+            </div>
+            <div class="flex flex-col">
+              <label for="start" class="mb-1 text-sm text-at-light-green">
+                End Time 
+              </label>
+              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="endTime" type="time" v-model="event.endTime">
+                <p v-else>{{momentTime(event.endTime, "hh:mm" ).format("hh:mm a")}}</p>
+            </div>
+
+          </div>
         </div>
+      </div>
 <!-- ///////////////////////////////////////////////////////////////////////// -->
         <!--Exercises  -->
-        <div class="mt-10 p-8 rounded-md flex flex-col item-center bg-light-grey shadow-md">
+        <div class="mt-10 p-8 rounded-md flex flex-col
+         item-center bg-light-grey shadow-md">
           <!-- Strength Training -->
           <div v-if="data.workoutType === 'strength'" class="flex flex-col gap-y-4 w-full">
-            <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
+            <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row " v-for="(item, index) in data.exercises" :key="index">
               
               <div class="flex flex-1 flex-col">
                 <label for="body-part" class="mb-1 text-sm text-at-light-green">
@@ -97,20 +126,21 @@
                 <input v-if="edit" id="weight" v-model="item.weight" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
                 <p v-else>{{item.weight}}</p>
               </div>
-
-              <img class="gifUrl" :src="item.exercise.gifUrl" alt="">
-<!-- only in edit mode -->
+              <div v-if="!edit" class="relative">
+                  <img class="gifUrl sm:bottom-0 sm:left-0" :src="item.exercise.gifUrl" alt="">
+              </div>
+              <!-- only in edit mode -->
               <img v-if="edit" @click="deleteExercise(item.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
               <!-- onclick add exercise -->
             </div>
              <button @click="addExercise" v-if="edit" type="button" class="py-2 px-6 rounded-sm text-sm text-white bg-at-light-green duration-200 border-solid border-2 border-transparent hover:border-at-light-green hover:bg-white hover:text-at-light-green">Add Exercise</button>
           </div>
 
-          <!-- Cardio -->
+          <!--\\\\\\\\\\ Cardio //////////////// -->
           <div v-else class="flex flex-col gap-y-4 w-full">
             <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
               
-              <div class="flex flex-2 flex-col md:w-1/3">
+              <div class="flex flex-1 flex-col md:w-1/3">
                 <label for="cardioType" class="mb-1 text-sm text-at-light-green">
                   Type
                 </label>
@@ -118,6 +148,8 @@
                   <option value="#">Select Type</option>
                   <option value="run">Run</option>
                   <option value="walk">Walk</option>
+                  <option value="swim">swim</option>
+                  <option value="bike">bike</option>
                 </select>
                 <p v-else>{{item.cardioType}}</p>
               </div>
@@ -145,6 +177,10 @@
                 <input v-if="edit" id="pace" v-model="item.pace" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
                 <p v-else>{{item.pace}}</p>
               </div>
+              <!-- LOTTI ANIMATION -->
+              <div v-if="!edit" class="flex flex-1 flex-col">
+                 <Vue3Lottie :animationData="convertLottis(item.cardioType)" :height="100" :width="100" />
+              </div>
           <!-- only in edit mode -->
               <img v-if="edit" @click="deleteExercise(item.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
 
@@ -164,12 +200,26 @@ import {supabase} from '../supabase/init'
 import {useRoute, useRouter} from 'vue-router'
 import { v4 as uuidv4 } from 'uuid';
 import store from '../store/index'
+import moment from 'moment'
+import bike from '../assets/lotti/bike'
+import run from '../assets/lotti/run.json'
+import swim from '../assets/lotti/swim.json'
+import walk from '../assets/lotti/walk.json'
+
 export default {
   name: "View-Workout",
+  data(){
+    return{
+      bike,
+      run,
+      swim,
+      walk
+    }
+  },
   setup() {
     const bodyparts=ref([{name:"Back", query:"back"},{name:"BodyWeight", query:"cardio"},{name:"Chest", query:"chest"},{name:"Lower Arms", query:"lower%20arms"},{name:"Lower Legs", query:"lower%20legs"},{name:"Neck", query:"neck"},{name:"Shoulders", query:"shoulders"},{name:"Upper Arms", query:"upper%20arms"},{name:"Upper Legs", query:"upper%20legs"},{name:"Waist", query:"waist"}])
-  // Create data / vars use params to make a call to superbase
-  //data will be the object returned from supabase which is our workout
+    // Create data / vars use params to make a call to superbase
+    //data will be the object returned from supabase which is our workout
     const data = ref(null)
     //state for loading data from supabase, don't load data till supa base loaded
     const dataLoaded = ref(null)
@@ -265,6 +315,14 @@ export default {
         })
       }
     }
+  const convertLottis = (exerciseName) =>{
+    const lottis = [{exercise: 'bike', json:bike},{exercise: 'swim', json:swim},{exercise: 'run', json:run}, {exercise: 'walk', json:walk} ]
+    for(let i=0 ; i<lottis.length; i++){
+      if(lottis[i].exercise === exerciseName){
+        return lottis[i].json
+      }
+    }
+  }
 
     // Delete exercise
   const deleteExercise = (id) =>{
@@ -304,7 +362,8 @@ export default {
       const {error} = await supabase.from('workouts').update({
         //update the workoutName and exercises columns for the specific workout id
         workoutName: data.value.workoutName,
-        exercises: data.value.exercises
+        exercises: data.value.exercises,
+        events: data.value.events
       }).eq('id', currentId)
       if(error) throw error;
       //turn off edit mode after we update the workout
@@ -334,14 +393,25 @@ export default {
     deleteExercise,
     update,
     bodyparts,
-    selectBodyPart };
+    selectBodyPart,
+    convertLottis
+ };
   },
+  methods:{
+    moment: function(date, format){
+      return moment(date, format)
+    },
+    momentTime: function(time, format){
+      return moment(time, format)
+    }
+  }
+
 }
 </script>
 
 <style>
 .gifUrl{
-  height: 50px
+  height: 100px
 }
 
 </style>

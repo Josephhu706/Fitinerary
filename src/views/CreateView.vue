@@ -25,21 +25,23 @@
 
                 <!-- start date -->
             <div class="flex flex-col gap-y-5">
+            <transition-group tag = "div" name="list" appear>
                 <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(event,index) in events" :key="index">
                     <div class="flex flex-col flex-1">
                         <label for="startDate" class="mb-1 text-sm text-at-light-green">Pick a date</label>
-                        <input type="date" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.start" required>
+                        <input type="date" class="p-2 text-gray-500 focus:outline-none" id="date" v-model="event.start" required>
                     </div>
                     <div class="flex flex-col flex-1">
                         <label for="startTime" class="mb-1 text-sm text-at-light-green">Pick a start time</label>
-                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.startTime" required>
+                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="startTime" v-model="event.startTime" required>
                     </div>
                     <div class="flex flex-col flex-1">
                         <label for="endTime" class="mb-1 text-sm text-at-light-green">Pick a end time</label>
-                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="workout" v-model="event.endTime" required>
+                        <input type="time" class="p-2 text-gray-500 focus:outline-none" id="endTime" v-model="event.endTime" required>
                     </div>
                     <img @click="deleteEvent(event.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
-                </div>
+                </div> 
+                </transition-group>
                 <button @click="addEvent" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-at-light-green duration-200 border-solid border-2 border-transparent hover:border-at-light-green hover:bg-white hover:text-at-light-green">Add Schedule</button>
             </div>
                 
@@ -58,44 +60,45 @@
 
                 <!-- Strength training Inputs -->
                 <div v-if="workoutType === 'strength'" class="flex flex-col gap-y-5">
+                    <transition-group tag="div" name="list" appear>
+                        <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(item,index) in exercises" :key="index">
 
-                    <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(item,index) in exercises" :key="index">
+                            <div class="flex-col flex">
+                                <label for="bodyPart" class="mb-1 text-sm text-at-light-green">Choose a Body Part</label>
+                                    <select required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" @change="selectBodyPart(item)">
+                                        <option>select body part</option>
+                                        <option :value="bodypart" v-for="bodypart in bodyparts" :key="bodypart.name">
+                                            {{bodypart.name}}
+                                        </option>
+                                    </select>
+                            </div>
 
-                        <div class="flex-col flex">
-                            <label for="bodyPart" class="mb-1 text-sm text-at-light-green">Choose a Body Part</label>
-                                <select required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" @change="selectBodyPart(item)">
-                                    <option>select body part</option>
-                                    <option :value="bodypart" v-for="bodypart in bodyparts" :key="bodypart.name">
-                                        {{bodypart.name}}
+                            <div class="flex flex-col flex-1">
+                            <label for="exercise" class="mb-1 text-sm text-at-light-green">Exercises</label>
+                                <select required id="exerciseFromDB" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.exercise">
+                                    <option v-for="exercise in item.dbexercises" :key="exercise.name" :value="exercise">
+                                        {{exercise.name}}
                                     </option>
                                 </select>
-                        </div>
+                            </div>
 
-                        <div class="flex flex-col flex-1">
-                        <label for="exercise" class="mb-1 text-sm text-at-light-green">Exercises</label>
-                            <select required id="exerciseFromDB" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.exercise">
-                                <option v-for="exercise in item.dbexercises" :key="exercise.name" :value="exercise">
-                                    {{exercise.name}}
-                                </option>
-                            </select>
-                        </div>
+                            <div class="flex flex-col flex-1">
+                                <label for="sets" class="mb-1 text-sm text-at-light-green">Sets</label>
+                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.sets">
+                            </div>
 
-                        <div class="flex flex-col flex-1">
-                            <label for="sets" class="mb-1 text-sm text-at-light-green">Sets</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.sets">
-                        </div>
+                            <div class="flex flex-col flex-1">
+                                <label for="reps" class="mb-1 text-sm text-at-light-green">Reps</label>
+                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.reps">
+                            </div>
 
-                        <div class="flex flex-col flex-1">
-                            <label for="reps" class="mb-1 text-sm text-at-light-green">Reps</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.reps">
+                            <div class="flex flex-col flex-1 mb-8">
+                                <label for="weight" class="mb-1 text-sm text-at-light-green">Weight (Kg's)</label>
+                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.weight">
+                            </div>
+                            <img @click="deleteExercise(item.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
                         </div>
-
-                        <div class="flex flex-col flex-1">
-                            <label for="weight" class="mb-1 text-sm text-at-light-green">Weight (Kg's)</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.weight">
-                        </div>
-                        <img @click="deleteExercise(item.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
-                    </div>
+                    </transition-group>
                     <button @click="addExercise" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-at-light-green duration-200 border-solid border-2 border-transparent hover:border-at-light-green hover:bg-white hover:text-at-light-green">Add Exercise</button>
                 </div>
 
@@ -108,6 +111,8 @@
                                 <option value="#">Select Type</option>
                                 <option value="run">Run</option>
                                 <option value="walk">Walk</option>
+                                <option value="swim">swim</option>
+                                <option value="bike">bike</option>
                             </select>
                         </div>
 
@@ -137,7 +142,7 @@
 
 <script>
 // ref makes our data reactive
-import {ref} from 'vue'
+import {ref, onMounted} from 'vue'
 import { v4 as uuidv4 } from 'uuid';
 import {supabase} from '../supabase/init'
 export default {
@@ -153,6 +158,10 @@ export default {
         const bodyparts=ref([{name:"Back", query:"back"},{name:"BodyWeight", query:"cardio"},{name:"Chest", query:"chest"},{name:"Lower Arms", query:"lower%20arms"},{name:"Lower Legs", query:"lower%20legs"},{name:"Neck", query:"neck"},{name:"Shoulders", query:"shoulders"},{name:"Upper Arms", query:"upper%20arms"},{name:"Upper Legs", query:"upper%20legs"},{name:"Waist", query:"waist"}])
         const DBexercises=ref([])
         const bodypartType=ref('')
+
+        onMounted(()=>{
+            addEvent();
+        })
         //Add Exercise function
         const addExercise = () =>{
             //cardio and strength will have two different object types
@@ -182,7 +191,6 @@ export default {
         }
 
         const addEvent = () =>{
-
             events.value.push({
                 id: uuidv4(),
                 start:"",
@@ -298,7 +306,7 @@ export default {
             selectBodyPart,
             events,
             addEvent,
-            deleteEvent
+            deleteEvent,
 
         };
     }
@@ -306,6 +314,32 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style>
 
+.list-enter-from{
+    opacity:0;
+    transform: scale(0.6)
+}
+.list-enter-to{
+    opacity: 1;
+    transform: scale(1)
+}
+.list-enter-active{
+    transition: all 0.4s ease;
+}
+.list-leave-from{
+    opacity:1;
+    transform: scale(1)
+}
+.list-leave-to{
+    opacity: 0;
+    transform: scale(0.6);
+}
+.list-leave-active{
+    transition: all 0.4s ease;
+    position: absolute;
+}
+.list-move{
+    transition: all 0.3s ease;
+}
 </style>
