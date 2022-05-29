@@ -37,34 +37,42 @@
               {{data.workoutName}}
             </h1>
           </div>
-        <div class="flex flex-col gap-y-4 w-full mt-5 sm:items-center">
-          <div class="flex flex-col gap-x-6  gap-y-2 relative sm:flex-row" v-for="(event, index) in data.events" :key="index">
-            <!-- edit date -->
-            <div class="flex flex-col">
-              <label for="start" class="mb-1 text-sm text-indigo-600">
-                Workout Date
-              </label>
-              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="date" type="date" v-model="event.start">
-                <p v-else>{{ moment(event.start, "YYYY-MM-DD").format('MMMM D YYYY')}}</p>
-            </div>
-            <!-- edit start time -->
-            <div class="flex flex-col">
-              <label for="start" class="mb-1 text-sm text-indigo-600">
-                Start Time 
-              </label>
-              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="startTime" type="time" v-model="event.startTime">
-                <p v-else>{{momentTime(event.startTime, "hh:mm" ).format("hh:mm a")}}</p>
-            </div>
-            <div class="flex flex-col">
-              <label for="start" class="mb-1 text-sm text-indigo-600">
-                End Time 
-              </label>
-              <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="endTime" type="time" v-model="event.endTime">
-                <p v-else>{{momentTime(event.endTime, "hh:mm" ).format("hh:mm a")}}</p>
-            </div>
 
+          <!-- SCHEDULING PART -->
+        <div class="flex flex-col gap-y-4 w-full mt-5 sm:items-center">
+          <div v-if="data.events.length > 0">
+            <div class="flex flex-col gap-x-6  gap-y-2 relative sm:flex-row" v-for="(event, index) in data.events" :key="index">
+              <!-- edit date -->
+              <div class="flex flex-col">
+                <label for="start" class="mb-1 text-sm text-indigo-600">
+                  Workout Date
+                </label>
+                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="date" type="date" v-model="event.start">
+                  <p v-else>{{ moment(event.start, "YYYY-MM-DD").format('MMMM D YYYY')}}</p>
+              </div>
+              <!-- edit start time -->
+              <div class="flex flex-col">
+                <label for="start" class="mb-1 text-sm text-indigo-600">
+                  Start Time 
+                </label>
+                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="startTime" type="time" v-model="event.startTime">
+                  <p v-else>{{momentTime(event.startTime, "hh:mm" ).format("hh:mm a")}}</p>
+              </div>
+              <div class="flex flex-col">
+                <label for="start" class="mb-1 text-sm text-indigo-600">
+                  End Time 
+                </label>
+                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="endTime" type="time" v-model="event.endTime">
+                  <p v-else>{{momentTime(event.endTime, "hh:mm" ).format("hh:mm a")}}</p>
+              </div>
+              <img v-if="edit" @click="deleteEvent(event.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
+            </div>
+          </div>
+          <div v-else>
+            <h2>Nothing scheduled for this workout....</h2>
           </div>
         </div>
+         <button @click="addEvent" v-if="edit" type="button" class=" mt-3 py-2 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Event</button>
       </div>
 <!-- ///////////////////////////////////////////////////////////////////////// -->
         <!--Exercises  -->
@@ -257,7 +265,23 @@ export default {
     //call the function
 
     getData();
-    
+
+    const addEvent = () =>{
+      data.value.events.push({
+          id: uuidv4(),
+          start:"",
+          startTime:"",
+          endTime:"",
+      });
+      return
+    }
+
+    const deleteEvent = (id) =>{
+      //check that the user has a minimum of 2 exercises in their workout
+      // filter exercises and keep only the exercises that don't have the id
+      data.value.events = data.value.events.filter(event => event.id !== id)
+      return;
+    }
 
     // Delete workout
     const deleteWorkout = async () =>{
@@ -394,7 +418,9 @@ export default {
     update,
     bodyparts,
     selectBodyPart,
-    convertLottis
+    convertLottis,
+    addEvent,
+    deleteEvent
  };
   },
   methods:{

@@ -8,9 +8,9 @@
   <div v-else-if="dataLoaded" class="container mt-10 px-4">
     <!-- no data -->
     <div v-if="data.length === 0" class="w-full flex flex-col items-center">
-      <h1 class="text-2xl">Looks Empty Here...</h1>
+      <h1 class="text-2xl">Get off your fat ass...</h1>
       <!-- redirects you to create a workout -->
-      <router-Link class="mt-6 py-2 px-6 rounded-sm text-sm text-white bg-at-light-green duration-200 border-solid border-2 border-transparent hover:border-at-light-green hover:bg-white hover:text-at-light-green" :to="{name: 'createWorkout'}">Create Workout</router-Link>
+      <router-Link class="mt-6 py-2 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600" :to="{name: 'createWorkout'}">Create Workout</router-Link>
     </div>
     <!-- data -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -21,10 +21,10 @@
         <img v-if="workout.workoutType === 'cardio'" src="@/assets/images/running-light-green.png" class="h-24 w-auto">
         <!-- else if the workout type is strength training show this image -->
         <img v-else src="@/assets/images/dumbbell-light-green.png" class="h-24 w-auto" alt="">
-        <p class="mt-6 py-1 px-3 text-xs text-white bg-at-light-green shadow-md rounded-lg">
+        <p class="mt-6 py-1 px-3 text-xs text-white bg-indigo-600 shadow-md rounded-lg">
           {{workout.workoutType}}
         </p>
-        <h1 class="mt-8 mb-2 text-center text-xl text-at-light-green">
+        <h1 class="mt-8 mb-2 text-center text-xl text-indigo-600">
           {{workout.workoutName}}
         </h1>
       </router-link>

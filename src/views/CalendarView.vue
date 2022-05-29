@@ -32,6 +32,7 @@
             <div v-if="!edit">
               <button @click="editMode" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
               <button @click="deleteEvent" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Event</button>
+              <button @click="completeEvent" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Completed!</button>
             </div>
             <div v-else>
               <div class="flex flex-col gap-x-6 relative">       
@@ -80,11 +81,13 @@ export default {
     const events = ref([])
     const currentWorkout = ref(null)
     const editEvent = ref(null)
+    const currentWorkoutProgress = ref({})
 
     function onEventClick (event, e) {
       console.log(event.workoutId)
       let workoutId = event.workoutId
       data.value.forEach(workout => workout.id === workoutId? currentWorkout.value=workout : "")
+      currentWorkoutProgress.value = currentWorkout.value.progress
       selectedEvent.value = event
       showDialog.value = true
       // Prevent navigating to narrower view (default vue-cal behavior).
@@ -107,11 +110,98 @@ export default {
       closeModal()
     }
 
+    const completeEvent=()=>{
+      if (currentWorkoutProgress.value == null){
+        currentWorkoutProgress.value = {}
+      }
+      let workoutExercises = currentWorkout.value.exercises
+      let progress = []
+      workoutExercises.forEach((exercise)=>{
+        console.log(exercise)
+        let summary={}
+        summary.type = currentWorkout.value.workoutType
+        if(currentWorkout. value.workoutType === "strength"){
+          summary.name = exercise.exercise.name
+          summary.totalReps = parseInt(exercise.reps)*parseInt(exercise.sets)
+          summary.weight = parseInt(exercise.weight)
+          summary.gifUrl = exercise.exercise.gifUrl
+        }else{
+          console.log(currentWorkout.value.cardioType)
+          summary.name = exercise.cardioType
+          summary.distance = parseInt(exercise.distance)
+          summary.duration = parseInt(exercise.duration)
+          summary.pace = parseInt(exercise.pace)
+        }
+        progress.push(summary)
+      })
+      console.log(progress)
+      let currentProgress = currentWorkoutProgress.value
+      
+      progress.forEach((summary)=>{
+        console.log(summary)
+        if(!currentProgress[summary.name]){
+          if(summary.type ==="strength"){
+            console.log(summary.name)
+              currentProgress[summary.name] = {
+              type: summary.type,
+              totalReps: summary.totalReps,
+              maxWeight: summary.weight,
+              gifUrl: summary.gifUrl
+            }
+          }
+          else{
+            console.log(summary.name)
+            currentProgress[summary.name] = {
+              type: summary.type,
+              totalDistance: summary.distance,
+              totalDuration: summary.duration,
+              maxPace: summary.pace
+            }
+          }
+        }
+        else{
+          if(summary.type === "strength"){
+            currentProgress[summary.name].totalReps += parseInt(summary.totalReps)
+            if(summary.weight > currentProgress[summary.name].maxWeight){
+              currentProgress[summary.name].maxWeight = parseInt(summary.weight)
+            }
+          }
+          else{
+            currentProgress[summary.name].totalDistance += parseInt(summary.distance)
+            currentProgress[summary.name].totalDuration += parseInt(summary.duration)
+            if(summary.pace > currentProgress[summary.name].maxPace){
+              currentProgress[summary.name].maxPace = parseInt(summary.pace)
+            }
+          }
+        }
+      })
+      console.log(currentProgress)
+      currentWorkoutProgress.value = currentProgress
+      currentWorkout.value.progress = currentWorkoutProgress.value
+      updateProgress();
+      deleteEvent();
+    }
+
+    const updateProgress = async () =>{
+      const user = supabase.auth.user()
+      try{
+        const {error} = await supabase.from('progress').insert([
+          {
+            user_id: user.id,
+            progress: currentWorkoutProgress.value
+          }
+        ])
+        if(error) throw error;
+      }
+      catch(error){
+       console.log(error)
+      }
+    }
+
      // Update Workout
     const updateWorkout = async () =>{
       try{
         const {error} = await supabase.from('workouts').update({
-          //update the workoutName and exercises columns for the specific workout id
           events: currentWorkout.value.events
         }).eq('id', currentWorkout.value.id)
         if(error) throw error;
@@ -215,38 +305,12 @@ export default {
     // // Run data function
     getData();
 
-    return { rescheduleEvent, edit, editEvent, editMode, data, dataLoaded, user, events, getData, currentDate, buildEvent, currentWorkout, onEventClick, selectedEvent, showDialog, closeModal, deleteEvent};
+    return { updateProgress, currentWorkoutProgress, completeEvent, rescheduleEvent, edit, editEvent, editMode, data, dataLoaded, user, events, getData, currentDate, buildEvent, currentWorkout, onEventClick, selectedEvent, showDialog, closeModal, deleteEvent};
   },
 }
 </script>
 
 <style>
-/* .list-enter-from{
-    opacity:0;
-    transform: scale(0.6)
-}
-.list-enter-to{
-    opacity: 1;
-    transform: scale(1)
-}
-.list-enter-active{
-    transition: all 0.4s ease;
-}
-.list-leave-from{
-    opacity:1;
-    transform: scale(1)
-}
-.list-leave-to{
-    opacity: 0;
-    transform: scale(0.6);
-}
-.list-leave-active{
-    transition: all 0.4s ease;
-    position: absolute;
-}
-.list-move{
-    transition: all 0.3s ease;
-} */
 .xIcon{
   cursor:pointer;
 }
