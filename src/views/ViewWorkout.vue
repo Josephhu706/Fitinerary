@@ -1,5 +1,9 @@
 <template>
-    <div class="max-w-screen-sm mx-auto px-4 py-10">
+    <div class="viewWorkout max-w-screen-sm mx-auto px-4 py-10">
+        <router-link :to="{name: 'home'}" class="bg-transparent mb-6 hover:bg-violet-200 text-indigo-700 inline-flex items-center font-semibold hover:text-indigo-700 py-2 px-4 border border-indigo-500 hover:border-transparent rounded">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+          <span>Back To Home</span>
+        </router-link >
 <!-- App Message -->
       <div v-if="statusMsg || errorMsg" class="mb-10 p-4 rounded-md shadow-md bg-light-grey">
         <p class='text-at-light-green'>
@@ -14,7 +18,7 @@
         <!-- General Workout Info -->
         <div class="flex flex-col items-center p-8 rounded-md shadow-md bg-light-grey relative">
           <!-- only show these icons if user is logged in -->
-          <div v-if="user" class="flex absolute left-2 top-2 gap-x-2">
+          <div v-if="user" class="flex absolute left-8 top-3 gap-x-2">
             <div @click="editMode" class="h-7 w-7 rounded-full flex justify-center items-center cursor-pointer bg-indigo-600 shadow-lg">
               <img class="h-3.5 w-auto" src="@/assets/images/pencil-light.png" alt="">
             </div>
@@ -23,10 +27,14 @@
             </div>
           </div>
           <!-- show these depending on the type of workout -->
-          <img v-if="data.workoutType === 'cardio'" class="h-24 w-auto" src="@/assets/images/running-light-green.png" alt="">
-          <img v-else class="h-20 w-auto" src="@/assets/images/dumbbell-light-green.png" alt="">
+          <div class=" bg-cyan-300 rounded-full " v-if="data.workoutType === 'cardio'">
+            <img class="h-30 w-auto" src="@/assets/images/Cardio.svg" alt="">
+          </div>
+          <div class=" bg-violet-300 rounded-full " v-else>
+            <img class="h-30 w-auto" src="@/assets/images/strength.svg" alt="">
+          </div>
           <!-- put the workout type in the span -->
-          <span class="mt-6 py-1.5 px-5 text-xs text-white bg-indigo-600 rounded-lg shadow-md">
+          <span class="mt-6 py-3 px-3 text-xs text-white bg-indigo-600 rounded-full shadow-md">
             {{data.workoutType}}
           </span>
 
@@ -40,39 +48,43 @@
 
           <!-- SCHEDULING PART -->
         <div class="flex flex-col gap-y-4 w-full mt-5 sm:items-center">
-          <div v-if="data.events.length > 0">
-            <div class="flex flex-col gap-x-6  gap-y-2 relative sm:flex-row" v-for="(event, index) in data.events" :key="index">
-              <!-- edit date -->
-              <div class="flex flex-col">
-                <label for="start" class="mb-1 text-sm text-indigo-600">
-                  Workout Date
-                </label>
-                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="date" type="date" v-model="event.start">
-                  <p v-else>{{ moment(event.start, "YYYY-MM-DD").format('MMMM D YYYY')}}</p>
+          <div class="scheduling" v-if="data.events.length > 0">
+            <transition-group tag = "ul" name="list" appear>
+              <div class="flex flex-col gap-x-6  gap-y-2 relative sm:flex-row" v-for="(event, index) in data.events" :key="index">
+                <!-- edit date -->
+                <div class="flex flex-col">
+                  <label for="start" class="mb-1 text-sm text-indigo-600">
+                    Workout Date
+                  </label>
+                  <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="date" type="date" v-model="event.start">
+                    <p v-else>{{ moment(event.start, "YYYY-MM-DD").format('MMMM D YYYY')}}</p>
+                </div>
+                <!-- edit start time -->
+                <div class="flex flex-col">
+                  <label for="start" class="mb-1 text-sm text-indigo-600">
+                    Start Time 
+                  </label>
+                  <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="startTime" type="time" v-model="event.startTime">
+                    <p v-else>{{momentTime(event.startTime, "hh:mm" ).format("hh:mm a")}}</p>
+                </div>
+                <div class="flex flex-col">
+                  <label for="start" class="mb-1 text-sm text-indigo-600">
+                    End Time 
+                  </label>
+                  <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="endTime" type="time" v-model="event.endTime">
+                    <p v-else>{{momentTime(event.endTime, "hh:mm" ).format("hh:mm a")}}</p>
+                </div>
+                <div v-if="edit" class="flex flex-col pt-5">
+                  <svg  @click="deleteEvent(event.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
               </div>
-              <!-- edit start time -->
-              <div class="flex flex-col">
-                <label for="start" class="mb-1 text-sm text-indigo-600">
-                  Start Time 
-                </label>
-                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="startTime" type="time" v-model="event.startTime">
-                  <p v-else>{{momentTime(event.startTime, "hh:mm" ).format("hh:mm a")}}</p>
-              </div>
-              <div class="flex flex-col">
-                <label for="start" class="mb-1 text-sm text-indigo-600">
-                  End Time 
-                </label>
-                <input v-if="edit" class="p-2 text-gray-500 focus:outline-none" id="endTime" type="time" v-model="event.endTime">
-                  <p v-else>{{momentTime(event.endTime, "hh:mm" ).format("hh:mm a")}}</p>
-              </div>
-              <img v-if="edit" @click="deleteEvent(event.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
-            </div>
+            </transition-group>
           </div>
           <div v-else>
             <h2>Nothing scheduled for this workout....</h2>
           </div>
         </div>
-         <button @click="addEvent" v-if="edit" type="button" class=" mt-3 py-2 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Event</button>
+         <button @click="addEvent" v-if="edit" type="button" class=" mt-3 w-full py-2 px-6 rounded-md text-sm text-violet-600 bg-violet-200 duration-200 border-solid border-2 font-medium border-transparent hover:border-violet-800 hover:bg-white hover:text-violet-800">Add Schedule</button>
       </div>
 <!-- ///////////////////////////////////////////////////////////////////////// -->
         <!--Exercises  -->
@@ -80,124 +92,132 @@
          item-center bg-light-grey shadow-md">
           <!-- Strength Training -->
           <div v-if="data.workoutType === 'strength'" class="flex flex-col gap-y-4 w-full">
-            <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row " v-for="(item, index) in data.exercises" :key="index">
-              
-              <div class="flex flex-1 flex-col">
-                <label for="body-part" class="mb-1 text-sm text-indigo-600">
-                  Body Part
-                </label>
-                <!-- <input v-if="edit" id="sets" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" type="text"> -->
-                  <select v-if="edit" @change="selectBodyPart(item)" required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" >
-                      <option :value="bodypart" v-for="bodypart in bodyparts" :key="bodypart.name">
-                          {{bodypart.name}}
-                      </option>
-                  </select>
-                <p v-else>{{item.bodyPart.name}}</p>
-              </div>
-
-              <div class="flex flex-2 flex-col md:w-1/3">
-                <label for="exercise-name" class="mb-1 text-sm text-indigo-600">
-                  Exercise
-                </label>
-                <!-- <input v-if="edit" id="exercise-name" v-model="item.exercise" class="p-2 w-full text-gray-500 focus:outline-none" type="text"> -->
-                  <select v-if="edit" required id="exerciseFromDB" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.exercise">
-                    <option v-for="exercise in item.dbexercises" :key="exercise.name" :value="exercise">
-                        {{exercise.name}}
-                    </option>
-                  </select>
+            <transition-group tag = "ul" name="list" appear>
+              <div class="flex flex-col gap-x-6 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
                 
-                <p v-else>{{item.exercise.name}}</p>
+                <div class="flex flex-1 flex-col">
+                  <label for="body-part" class="mb-1 text-sm text-indigo-600">
+                    Body Part
+                  </label>
+                  <!-- <input v-if="edit" id="sets" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" type="text"> -->
+                    <select v-if="edit" @change="selectBodyPart(item)" required id="bodyparts" v-model="item.bodyPart" class="p-2 w-full text-gray-500 focus:outline-none" >
+                        <option :value="bodypart" v-for="bodypart in bodyparts" :key="bodypart.name">
+                            {{bodypart.name}}
+                        </option>
+                    </select>
+                  <p v-else>{{item.bodyPart.name}}</p>
+                </div>
+
+                <div class="flex flex-2 flex-col md:w-1/3">
+                  <label for="exercise-name" class="mb-1 text-sm text-indigo-600">
+                    Exercise
+                  </label>
+                  <!-- <input v-if="edit" id="exercise-name" v-model="item.exercise" class="p-2 w-full text-gray-500 focus:outline-none" type="text"> -->
+                    <select v-if="edit" required id="exerciseFromDB" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.exercise">
+                      <option v-for="exercise in item.dbexercises" :key="exercise.name" :value="exercise">
+                          {{exercise.name}}
+                      </option>
+                    </select>
+                  
+                  <p v-else>{{item.exercise.name}}</p>
 
 
+                </div>
+              <!-- Sets -->
+              <div class="flex flex-1 flex-col">
+                  <label for="sets" class="mb-1 text-sm text-indigo-600">
+                    Sets
+                  </label>
+                  <input v-if="edit" id="sets" v-model="item.sets" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.sets}}</p>
+                </div>
+                <!-- reps -->
+                <div class="flex flex-1 flex-col">
+                  <label for="reps" class="mb-1 text-sm text-indigo-600">
+                    Reps
+                  </label>
+                  <input v-if="edit" id="reps" v-model="item.reps" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.reps}}</p>
+                </div>
+                <!-- Weight -->
+                <div class="flex flex-1 flex-col">
+                  <label for="weight" class="mb-1 text-sm text-indigo-600">
+                    Weight kg
+                  </label>
+                  <input v-if="edit" id="weight" v-model="item.weight" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.weight}}</p>
+                </div>
+                <div v-if="!edit" class="relative">
+                    <img class="gifUrl rounded-md sm:bottom-0 sm:left-0" :src="item.exercise.gifUrl" alt="">
+                </div>
+                <!-- only in edit mode -->
+                <div v-if="edit" class="flex flex-col pt-5">
+                  <svg  @click="deleteExercise(item.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
+                <!-- onclick add exercise -->
               </div>
-          <!-- Sets -->
-             <div class="flex flex-1 flex-col">
-                <label for="sets" class="mb-1 text-sm text-indigo-600">
-                  Sets
-                </label>
-                <input v-if="edit" id="sets" v-model="item.sets" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.sets}}</p>
-              </div>
-            <!-- reps -->
-               <div class="flex flex-1 flex-col">
-                <label for="reps" class="mb-1 text-sm text-indigo-600">
-                  Reps
-                </label>
-                <input v-if="edit" id="reps" v-model="item.reps" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.reps}}</p>
-              </div>
-              <!-- Weight -->
-               <div class="flex flex-1 flex-col">
-                <label for="weight" class="mb-1 text-sm text-indigo-600">
-                  Weight Kgs
-                </label>
-                <input v-if="edit" id="weight" v-model="item.weight" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.weight}}</p>
-              </div>
-              <div v-if="!edit" class="relative">
-                  <img class="gifUrl sm:bottom-0 sm:left-0" :src="item.exercise.gifUrl" alt="">
-              </div>
-              <!-- only in edit mode -->
-              <img v-if="edit" @click="deleteExercise(item.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
-              <!-- onclick add exercise -->
-            </div>
-             <button @click="addExercise" v-if="edit" type="button" class="py-2 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
+            </transition-group>
+             <button @click="addExercise" v-if="edit" type="button" class="py-2 px-6 rounded-md text-sm text-violet-800 bg-violet-200 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
           </div>
 
           <!--\\\\\\\\\\ Cardio //////////////// -->
           <div v-else class="flex flex-col gap-y-4 w-full">
-            <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
-              
-              <div class="flex flex-1 flex-col md:w-1/3">
-                <label for="cardioType" class="mb-1 text-sm text-indigo-600">
-                  Type
-                </label>
-                <select v-if="edit" id="cardioType" v-model="item.cardioType" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                  <option value="#">Select Type</option>
-                  <option value="run">Run</option>
-                  <option value="walk">Walk</option>
-                  <option value="swim">swim</option>
-                  <option value="bike">bike</option>
-                </select>
-                <p v-else>{{item.cardioType}}</p>
+            <transition-group tag = "ul" name="list" appear>
+              <div class="flex flex-col gap-x-6 gap-y-2 relative sm:flex-row" v-for="(item, index) in data.exercises" :key="index">
+                <div class="flex flex-1 flex-col md:w-1/3">
+                  <label for="cardioType" class="mb-1 text-sm text-indigo-600">
+                    Type
+                  </label>
+                  <select v-if="edit" id="cardioType" v-model="item.cardioType" class="p-2 w-full text-gray-500 focus:outline-none">
+                    <option value="#">Select Type</option>
+                    <option value="run">Run</option>
+                    <option value="walk">Walk</option>
+                    <option value="swim">swim</option>
+                    <option value="bike">bike</option>
+                  </select>
+                  <p v-else>{{item.cardioType}}</p>
+                </div>
+                <!-- Distance -->
+              <div class="flex flex-1 flex-col">
+                  <label for="distance" class="mb-1 text-sm text-indigo-600">
+                    Distance km
+                  </label>
+                  <input v-if="edit" id="distance" v-model="item.distance" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.distance}}</p>
+                </div>
+                <!-- duration -->
+                <div class="flex flex-1 flex-col">
+                  <label for="duration" class="mb-1 text-sm text-indigo-600">
+                    Duration min
+                  </label>
+                  <input v-if="edit" id="duration" v-model="item.duration" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.duration}}</p>
+                </div> 
+                <!-- pace -->
+                <div class="flex flex-1 flex-col">
+                  <label for="pace" class="mb-1 text-sm text-indigo-600">
+                    Pace km/hr
+                  </label>
+                  <input v-if="edit" id="pace" v-model="item.pace" class="p-2 w-full text-gray-500 focus:outline-none" type="number">
+                  <p v-else>{{item.pace}}</p>
+                </div>
+                <!-- LOTTI ANIMATION -->
+                <div v-if="!edit" class="flex flex-1 flex-col">
+                  <Vue3Lottie :animationData="convertLottis(item.cardioType)" :height="100" :width="100" />
+                </div>
+                <!-- only in edit mode -->
+                <div v-if="edit" class="flex flex-col pt-5">
+                  <svg  @click="deleteExercise(item.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
               </div>
-          <!-- Distance -->
-             <div class="flex flex-1 flex-col">
-                <label for="distance" class="mb-1 text-sm text-indigo-600">
-                  Distance
-                </label>
-                <input v-if="edit" id="distance" v-model="item.distance" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.distance}}</p>
-              </div>
-            <!-- duration -->
-               <div class="flex flex-1 flex-col">
-                <label for="duration" class="mb-1 text-sm text-indigo-600">
-                  Duration
-                </label>
-                <input v-if="edit" id="duration" v-model="item.duration" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.duration}}</p>
-              </div> 
-              <!-- pace -->
-               <div class="flex flex-1 flex-col">
-                <label for="pace" class="mb-1 text-sm text-indigo-600">
-                  Pace
-                </label>
-                <input v-if="edit" id="pace" v-model="item.pace" class="p-2 w-full text-gray-500 focus:outline-none" type="text">
-                <p v-else>{{item.pace}}</p>
-              </div>
-              <!-- LOTTI ANIMATION -->
-              <div v-if="!edit" class="flex flex-1 flex-col">
-                 <Vue3Lottie :animationData="convertLottis(item.cardioType)" :height="100" :width="100" />
-              </div>
-          <!-- only in edit mode -->
-              <img v-if="edit" @click="deleteExercise(item.id)" class="absolute h-4 w-auto -left-5 cursor-pointer" src="@/assets/images/trash-light-green.png" alt="">
-
-            </div>
-            <button @click='addExercise' v-if="edit" type="button" class="py-2 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
+            </transition-group>
+            <button @click='addExercise' v-if="edit" type="button" class="py-2 px-6 rounded-md text-sm text-violet-800 bg-violet-200 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
           </div>
         </div>
-        <!-- update -->
-         <button v-if="edit" @click='update' type="button" class="mt-10 px-6 rounded-sm text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Update Workout</button>
+        <div v-if="edit" class=" mt-6 flex items-start justify-center">
+           <button @click='update' type="button" class=" px-6 py-3 rounded-lg text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Update Workout</button>
+        </div>
+          <!-- update -->
       </div>
     </div>
 </template>
@@ -436,6 +456,32 @@ export default {
 </script>
 
 <style>
+.list-enter-from{
+    opacity:0;
+    transform: scale(0.6)
+}
+.list-enter-to{
+    opacity: 1;
+    transform: scale(1)
+}
+.list-enter-active{
+    transition: all 0.4s ease;
+}
+.list-leave-from{
+    opacity:1;
+    transform: scale(1)
+}
+.list-leave-to{
+    opacity: 0;
+    transform: scale(0.6);
+}
+.list-leave-active{
+    transition: all 0.4s ease;
+    position: absolute;
+}
+.list-move{
+    transition: all 0.3s ease;
+}
 .gifUrl{
   height: 100px
 }

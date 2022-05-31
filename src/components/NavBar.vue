@@ -1,17 +1,19 @@
 <template>
     <header class="bg-cyan-700 text-white">
-        <nav class="container py-2 px-4 flex flex-col gap-4 items-center sm:flex-row">
-            <div class='flex items-center gap-x-4'>
-                <img class="w-14" src="../assets/images/Logo.svg" alt="">
-                <h1 class="text-lg">Fitinerary</h1>
-            </div>
+        <nav class="container py-5 px-4 flex flex-col gap-4 items-center sm:flex-row">
+                <router-link class="cursor-pointer" :to="{name: 'home'}">
+                    <div class='flex items-center  gap-x-4'>
+                        <img class="w-14 cursor-pointer" src="../assets/images/Logo.svg" alt="">
+                        <h1 class="text-lg">Fitinerary</h1>
+                    </div>
+                </router-link>
             <ul class="flex flex-1 justify-end gap-x-10">
                 <router-link class="cursor-pointer" :to="{name: 'home'}">Home</router-link>
                 <!-- only render this link if the user is logged in -->
                 <router-link v-if="user" class="cursor-pointer" :to="{name: 'createWorkout'}">Create</router-link>
                 <!-- only render this link if user is logged out -->
                 <router-link v-if="user" class="cursor-pointer" :to="{name: 'calendarView'}">Schedule</router-link>
-                <router-link v-if="user" class="cursor-pointer" :to="{name: 'progressView'}">Progress</router-link>
+                <router-link v-if="user" class="cursor-pointer" :to="{name: 'progressView'}">Achievements</router-link>
                 <router-link v-if="!user" class="cursor-pointer" :to="{name: 'loginForm'}">Login</router-link>
                 <!-- only render this link if the user is logged in -->
                 <li v-if="user" @click="logout" class="cursor-pointer">Logout</li>

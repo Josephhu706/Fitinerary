@@ -7,12 +7,17 @@
             <p class="text-at-light-green">{{statusMsg}}</p>
             <p class="text-red-500">{{errorMsg}}</p>
         </div>
+        <div class="max-w-7xl mb-10 mx-auto py-2 px-4 sm:px-6 md:flex-row lg:py-2 lg:px-8 lg:flex lg:items-center lg:justify-between">
+        <div>
+          <span class="block font-extrabold leading-tight text-4xl mt-0 mb-2">Create a Workout</span>
+          <span class="block mt-2 max-w-2xl text-l text-gray-500">Pick a workout type, add some exercises and schedule some dates to create your workout!</span>
+        </div>
+      </div>
         <!-- exercise creation -->
         <div class="p-8 flex items-start bg-light-grey rounded-md shadow-lg">
             <!-- form -->
             <!-- prevent form from submitting and run createworkout function  -->
             <form @submit.prevent="createWorkout" class="flex flex-col gap-y-5 w-full">
-                <h1 class="text-2xl text-indigo-600">Record Workout</h1>
 
                 <!-- workoutname -->
                 <!-- v-model lets us set state to whatever the value in this input is -->
@@ -39,10 +44,12 @@
                         <label for="endTime" class="mb-1 text-sm text-indigo-600">Pick a end time</label>
                         <input type="time" class="p-2 text-gray-500 focus:outline-none" id="endTime" v-model="event.endTime" required>
                     </div>
-                    <img @click="deleteEvent(event.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
+                    <div class="flex flex-col pt-5">
+                        <svg  @click="deleteEvent(event.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </div>
                 </div> 
                 </transition-group>
-                <button @click="addEvent" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Schedule</button>
+                <button @click="addEvent" type="button" class="mt-4 py-2 w-full px-6 rounded-md self-start text-sm text-indigo-600 bg-violet-200 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Schedule</button>
             </div>
                 
 
@@ -59,7 +66,7 @@
             </div>
 
                 <!-- Strength training Inputs -->
-                <div v-if="workoutType === 'strength'" class="flex flex-col gap-y-5">
+                <div v-if="workoutType === 'strength'" class="flex flex-col">
                     <transition-group tag="div" name="list" appear>
                         <div class="flex flex-col gap-x-6 gap-y-2 relative md:flex-row" v-for="(item,index) in exercises" :key="index">
 
@@ -84,22 +91,24 @@
 
                             <div class="flex flex-col flex-1">
                                 <label for="sets" class="mb-1 text-sm text-indigo-600">Sets</label>
-                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.sets">
+                                <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.sets">
                             </div>
 
                             <div class="flex flex-col flex-1">
                                 <label for="reps" class="mb-1 text-sm text-indigo-600">Reps</label>
-                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.reps">
+                                <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.reps">
                             </div>
 
                             <div class="flex flex-col flex-1 mb-8">
                                 <label for="weight" class="mb-1 text-sm text-indigo-600">Weight (Kg's)</label>
-                                <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.weight">
+                                <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.weight">
                             </div>
-                            <img @click="deleteExercise(item.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
+                            <div class="flex flex-col pt-5">
+                                <svg @click="deleteExercise(item.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </div>
                         </div>
                     </transition-group>
-                    <button @click="addExercise" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
+                    <button @click="addExercise" type="button" class="py-2 px-6 w-full rounded-md self-start text-sm text-indigo-600 bg-violet-200 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
                 </div>
 
                 <!--Cardio training inputs-->
@@ -118,23 +127,27 @@
 
                         <div class="flex flex-col flex-1">
                             <label for="distance" class="mb-1 text-sm text-indigo-600">Distance</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.distance">
+                            <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.distance">
                         </div>
 
                         <div class="flex flex-col flex-1"> 
                             <label for="duration" class="mb-1 text-sm text-indigo-600">Duration</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.duration">
+                            <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.duration">
                         </div>
 
                         <div class="flex flex-col flex-1">
                             <label for="pace" class="mb-1 text-sm text-indigo-600">Pace</label>
-                            <input required type="text" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.pace">
+                            <input required type="number" class="p-2 w-full text-gray-500 focus:outline-none" v-model="item.pace">
                         </div>
-                        <img @click="deleteExercise(item.id)" src="@/assets/images/trash-light-green.png" class="h-4 w-auto absolute -left-5 cursor-pointer">
+                        <div class="flex flex-col pt-5">
+                            <svg @click="deleteExercise(item.id)" class="h-6 w-auto cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </div>
                     </div>
-                    <button @click="addExercise" type="button" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
+                        <button @click="addExercise" type="button" class="mt-6 py-2 px-6 w-full rounded-md self-start text-sm text-indigo-600 bg-violet-200 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Add Exercise</button>
                 </div>
-                <button type="submit" class="mt-6 py-2 px-6 rounded-sm self-start text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Record Workout</button>
+                <div class="flex justify-center">
+                    <button type="submit" class="py-2 px-6 rounded-md self-start text-sm text-white bg-indigo-600 duration-200 border-solid border-2 border-transparent hover:border-indigo-600 hover:bg-white hover:text-indigo-600">Create Workout</button>
+                </div>
             </form>
         </div>
     </div>

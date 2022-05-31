@@ -106,7 +106,7 @@ const router = createRouter({
 
 //change document titles. Router before each method adds the document titles to the browser
 router.beforeEach((to, form, next) =>{
-    document.title = `${to.meta.title} | Active Tracker`;
+    document.title = `${to.meta.title} | Fitinerary`;
     next()
 })
 

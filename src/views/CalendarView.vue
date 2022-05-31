@@ -1,20 +1,34 @@
 <template>
+<div class="max-w-screen-lg mx-auto px-4 py-10">
+    <div class="max-w-7xl mb-10 mx-auto py-5 lg:py-5 lg:flex lg:items-center lg:justify-between">
+      <div>
+        <span class="block font-extrabold leading-tight text-4xl mt-0 mb-2">My Workout Schedule</span>
+        <span class="block mt-2 max-w-2xl text-l text-gray-500">View planned workouts, reschedule and complete your workouts!</span>
+      </div>
+      <div class="mt-5">
+        <router-link class="px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700" :to="{name: 'createWorkout'}">
+          Create Workout
+        </router-link>
+      </div>
+    </div>
+</div>
+<div class="px-8 md:mb-6">
     <vue-cal :selected-date="currentDate"
             class=" vuecal--blue-theme"
             active-view="month"
-            :time-from="9 * 60"
-            :time-to="19 * 60"
+            :time-from="12"
+            :time-to="12 * 60"
             :disable-views="['years', 'year']"
             :events="events"
             events-on-month-view="short"
             :on-event-click="onEventClick">
     </vue-cal>
-
-    <!-- modal NEEDS SOME ANIMATION ZOOM IN-OUT-->
+</div>
+    <!-- modal NEEDS SOME ANIMATION -->
     <transition name="modal">
-      <div v-if="showDialog" id="overlay" class=" fixed bg-black bg-opacity-80 z-50 absolute inset-0 flex justify-center items-center">
-          <div class="bg-white w-5/12 py-7 px-7 rounded shadow-xl text-gray-800 w-fit border-2">
-            <div class="flex justify-between items-center">
+      <div v-if="showDialog" id="overlay" class="modalOverlay bg-black bg-opacity-80 z-50 inset-0 flex justify-center items-center">
+          <div v-if="!playAnimation" class="relative bg-white w-auto py-10 px-10 rounded shadow-xl text-gray-800 border-2">
+            <div class="flex flex-shrink-0 justify-between items-center">
               <h3 class="text-lg font-bold">{{selectedEvent.title}}</h3>
               <h3 class="text-lg font-bold">{{selectedEvent.start && selectedEvent.start.format('DD/MM/YYYY')}}</h3>
               <svg @click="closeModal" id="close-modal" class="xIcon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -29,10 +43,10 @@
             <div class="py-4">
               <div class="w-full border-t border-gray-300"></div>
             </div>
-            <div v-if="!edit">
-              <button @click="editMode" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
+            <div class="flex gap-x-1" v-if="!edit">
+              <button @click="editMode" class="bg-white hover:bg-violet-200 text-violet-800 border-2 border-violet-800 font-bold py-2 px-4 rounded">Reschedule</button>
+              <button @click="animateComplete" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Completed!</button>
               <button @click="deleteEvent" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Delete Event</button>
-              <button @click="completeEvent" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Completed!</button>
             </div>
             <div v-else>
               <div class="flex flex-col gap-x-6 relative">       
@@ -48,9 +62,12 @@
                     <label for="endTime" class="mb-1 text-sm text-gray-800">Pick a end time</label>
                     <input v-model="editEvent.endTime" type="time" class="p-2 text-gray-500 focus:outline-none" id="endTime" required>
                 </div>
-                 <button @click="rescheduleEvent" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reschedule</button>
+                 <button @click="rescheduleEvent" class="bg-white hover:bg-violet-200 text-violet-800 border-2 border-violet-800 font-bold py-2 px-4 rounded">Reschedule</button>
               </div>    
             </div>
+          </div>
+          <div v-else class="bg-white py-7 px-7 rounded-full shadow-xl text-gray-800 w-fit border-2">
+            <Vue3Lottie :animationData="excellent" :height="150" />
           </div>
       </div>
     </transition>
@@ -64,7 +81,8 @@ import {ref} from 'vue'
 import {supabase} from '../supabase/init'
 import {computed} from 'vue'
 import store from '../store/index'
-
+import excellent from '../assets/lotti/excellent.json'
+import lodash from 'lodash'
 export default {
     name:'calendarView',
     components: { VueCal },
@@ -82,6 +100,15 @@ export default {
     const currentWorkout = ref(null)
     const editEvent = ref(null)
     const currentWorkoutProgress = ref({})
+    const playAnimation = ref(false)
+
+    const animateComplete = () =>{
+      playAnimation.value=true
+      setTimeout(()=>{
+        playAnimation.value=false
+        completeEvent();
+      },2000)
+    }
 
     function onEventClick (event, e) {
       console.log(event.workoutId)
@@ -180,6 +207,7 @@ export default {
       currentWorkout.value.progress = currentWorkoutProgress.value
       updateProgress();
       deleteEvent();
+      closeModal();
     }
 
     const updateProgress = async () =>{
@@ -273,12 +301,13 @@ export default {
           freshEvent.end = event.start+" "+event.endTime
           freshEvent.title = workout.workoutName
           freshEvent.class = workout.workoutType
-          let eventContent = `<strong>${workout.workoutType} workout:</strong><br><ul>`
+          let eventContent = `<strong>${lodash.capitalize(workout.workoutType)} Workout:</strong><br><ul>`
             workout.exercises.forEach((exercise, index)=>{
               //if last item in the array
               if(index==workout.exercises.length-1){
+                
                 if(workout.workoutType==='strength'){
-                  let lastLi = `<li>${exercise.exercise.name}'s: ${exercise.sets} sets of ${exercise.reps} reps.</li></ul>`
+                  let lastLi = `<li>${lodash.capitalize(exercise.exercise.name)}'s: ${exercise.sets} sets of ${exercise.reps} reps at ${exercise.weight}kg.</li></ul>`
                   eventContent+=lastLi
                 }
                 else{
@@ -288,11 +317,11 @@ export default {
               }
               else{
                 if (workout.workoutType === 'strength'){
-                  let newLi = `<li>${exercise.exercise.name}'s: ${exercise.sets} sets of ${exercise.reps} reps.</li>`
+                  let newLi = `<li>${lodash.capitalize(exercise.exercise.name)}'s: ${exercise.sets} sets of ${exercise.reps} reps at ${exercise.weight}kg.</li>`
                   eventContent+=newLi
                 }
                 else{
-                  let newLi = `<li>Go for a ${exercise.duration} minute ${exercise.cardioType}: ${exercise.distance} kms at a ${exercise.pace} pace.</li>`
+                  let newLi = `<li>Go for a ${exercise.duration} minute ${exercise.cardioType}: ${exercise.distance} kms at a ${exercise.pace} km/hr pace.</li>`
                   eventContent+=newLi
                 }
               }
@@ -305,12 +334,42 @@ export default {
     // // Run data function
     getData();
 
-    return { updateProgress, currentWorkoutProgress, completeEvent, rescheduleEvent, edit, editEvent, editMode, data, dataLoaded, user, events, getData, currentDate, buildEvent, currentWorkout, onEventClick, selectedEvent, showDialog, closeModal, deleteEvent};
+    return {
+    excellent, 
+    playAnimation, 
+    animateComplete,
+    updateProgress,
+    currentWorkoutProgress,
+    completeEvent, 
+    rescheduleEvent, 
+    edit, 
+    editEvent, 
+    editMode, 
+    data, 
+    dataLoaded, 
+    user, events, 
+    getData, 
+    currentDate, 
+    buildEvent, 
+    currentWorkout, 
+    onEventClick, 
+    selectedEvent, 
+    showDialog, 
+    closeModal, 
+    deleteEvent};
   },
 }
 </script>
 
 <style>
+.modalOverlay{
+  height: 100%;
+  width: 100%;
+  position: fixed; /* Stay in place */
+  left: 0;
+  top: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+}
 .xIcon{
   cursor:pointer;
 }
@@ -369,6 +428,6 @@ export default {
 .vuecal__event-content {
   font-style: italic;
 }
-.vuecal__event.strength {background-color: rgba(253, 156, 66, 0.9);border: 1px solid rgb(233, 136, 46);color: #fff;}
-.vuecal__event.cardio {background-color: rgba(255, 102, 102, 0.9);border: 1px solid rgb(235, 82, 82);color: #fff;}
+.vuecal__event.strength {background-color: rgba(	165, 180, 252);border: 1px solid rgb(165, 180, 252);color: #fff;}
+.vuecal__event.cardio {background-color: rgba(103, 232, 249);border: 1px solid rgb(103, 232, 249);color: #fff;}
 </style>
