@@ -121,7 +121,6 @@
                   
                   <p v-else>{{item.exercise.name}}</p>
 
-
                 </div>
               <!-- Sets -->
               <div class="flex flex-1 flex-col">
@@ -385,8 +384,7 @@ export default {
 
     const selectBodyPart = async (item) =>{
 
-        console.log(item)
-        const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${item.bodyPart}`,
+        const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${item.bodyPart.query}`,
             {
                 method: 'GET',
                 headers: {
@@ -395,7 +393,9 @@ export default {
                 }
             }
         )
+        console.log(response)
         const data = await response.json();
+        console.log(data)
         item.dbexercises=data.slice(0,15)
     }
 
