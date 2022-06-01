@@ -1,15 +1,15 @@
 
-##View the code for my front-end here: 
+## View the code for my front-end here: 
 
 (https://github.com/Josephhu706/final-project-test)
 
 
-##Accessing the site
+## Accessing the site
 Access the app here: (https://main--fitinerary.netlify.app/)
 
 Both responsive on desktop and mobile.
 
-##Features
+## Features
 
 Fitinerary is a full stack application that allows its users to create and schedule workouts and also track their progress.
 
@@ -25,7 +25,7 @@ View their workout on a calendar and complete workouts to update progress.
 View their progress for both strength and cardio exercises.
 
 
-##Technologies used
+## Technologies used
 
 Front end
 Vue3.js
@@ -39,7 +39,7 @@ moment.js
 Back end
 Supabase
 
-##Approach taken
+## Approach taken
 
 Planning
 For my frontend, I drew up a wireframe of how I wanted my app to look, and how the pages would flow. This gave me a clear indication on what pages need to be worked on. During the process of coding, my final design did change from the original. Integrating the scheduling aspect with the planning aspects was quite challenging.
@@ -49,7 +49,7 @@ For my backend, I experimented using Supabase as it allowed for easier implement
 ![fitinerary-wireframe](https://user-images.githubusercontent.com/99111357/171306627-aa328390-5dca-4375-9b01-857a831102bc.png)
 
 
-##Lessons learnt
+## Lessons learnt
 To plan and revist the plan frequently to make sure you are on track or if things need to be revised
 
 There is a lot that goes into a full stack application and that it can be a lot to do in 7 days
@@ -57,7 +57,7 @@ There is a lot that goes into a full stack application and that it can be a lot 
 A lot of learning is done when you are working on a project
 I learnt more about Vue, how to use styling libraries like Tailwindcss, learned how to implement simple animations and transitions.
 
-##Future improvements
+## Future improvements
 
 As there were time constraints with the project, I was not able to deliver everything I would have liked to with my app.
 
