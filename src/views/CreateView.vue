@@ -248,7 +248,6 @@ export default {
                     }
                 }
             )
-            console.log(data)
             const data = await response.json();
             item.dbexercises=data.slice(0,15)
         }
